@@ -10,51 +10,107 @@ import Firebase
 import FirebaseAnalytics
 
 struct ContentView: View {
+    
+    // variables for instrument prices
+    var guitarPrice = 199.99
+    var cymbalPrice = 125.99
+    
     var body: some View {
+        var guitar: [String: Any] = [
+            AnalyticsParameterItemID: "SKU_123",
+            AnalyticsParameterItemName: "guitar 1",
+            AnalyticsParameterQuantity: 1,
+            AnalyticsParameterItemCategory: "instruments",
+            AnalyticsParameterItemVariant: "black",
+            AnalyticsParameterItemBrand: "Yamaha",
+            AnalyticsParameterPrice: guitarPrice,
+            AnalyticsParameterCurrency: "USD"
+        ]
+        var cymbal: [String: Any] = [
+            AnalyticsParameterItemID: "SKU_124",
+            AnalyticsParameterItemName: "cymbal 1",
+            AnalyticsParameterQuantity: 1,
+            AnalyticsParameterItemCategory: "instruments",
+            AnalyticsParameterItemVariant: "gold",
+            AnalyticsParameterItemBrand: "Zildjian",
+            AnalyticsParameterPrice: cymbalPrice,
+            AnalyticsParameterCurrency: "USD"
+        ]
+        // total value for cart
+        var cartValue = guitarPrice + cymbalPrice
+        var cartTransactionId = Int.random(in: 1..<5000000)
+        
         Text("Hello, world!")
             .padding()
         ZStack {
             VStack {
+                // begin checkout event
                 Button(action: {
-                    var guitar: [String: Any] = [
-                        AnalyticsParameterItemID: "SKU_123",
-                        AnalyticsParameterItemName: "guitar 1",
-                        AnalyticsParameterItemCategory: "instruments",
-                        AnalyticsParameterItemVariant: "black",
-                        AnalyticsParameterItemBrand: "Yamaha",
-                        AnalyticsParameterPrice: 199.99
+                    // Universal Analytics
+                    var beginCheckoutParams: [String: Any] = [
+                        AnalyticsParameterCurrency: "USD",
+                        AnalyticsParameterValue: cartValue,
+                        AnalyticsParameterItems: [guitar, cymbal]
                     ]
+                    Analytics.logEvent("begin_checkout", parameters: beginCheckoutParams)
+                })
+                {
+                    Text("Begin Checkout")
+                }.padding(10)
+                
+                // contact info event
+                Button(action: {
+                    // Universal Analytics
+                    var contactInfoParams: [String: Any] = [
+                        AnalyticsParameterCheckoutStep: 2
+                    ]
+                    Analytics.logEvent("checkout_progress", parameters: contactInfoParams)
+                    
+                    // GA4 does not have access to the checkout_step param
+                    Analytics.logEvent("checkout_contact_info", parameters: [
+                        "updated": "true"
+                    ])
+                })
+                {
+                    Text("Add Contact Info")
+                }.padding(10)
+                
+                // payment info event
+                Button(action: {
+                    // Universal Analytics
+                    var paymentInfoParams: [String: Any] = [
+                        AnalyticsParameterCheckoutStep: 3
+                    ]
+                    Analytics.logEvent("checkout_progress", parameters: paymentInfoParams)
+                    
+                    // GA4 does not have access to the checkout_step param
+                    Analytics.logEvent("checkout_payment_info", parameters: [
+                        "updated": "true"
+                    ])
+                })
+                {
+                    Text("Add Payment Info")
+                }.padding(10)
+                
+                // purchase event
+                Button(action: {
+                    // Universal Analytics
                     var productDetails: [String: Any] = [
                         AnalyticsParameterCurrency: "USD",
-                        AnalyticsParameterValue: 199.99,
-                        AnalyticsParameterTransactionID: Int.random(in: 1..<5000000),
+                        AnalyticsParameterValue: cartValue,
+                        AnalyticsParameterTransactionID: cartTransactionId,
                         AnalyticsParameterTax: 1,
                         AnalyticsParameterAffiliation: 1234,
-                        AnalyticsParameterCheckoutOption: "credit_card"
+                        AnalyticsParameterCheckoutOption: "credit_card",
+                        AnalyticsParameterItems: [guitar, cymbal]
                     ]
-                    var guitar2: [String: Any] = [
-                        AnalyticsParameterItemID: "SKU_123",
-                        AnalyticsParameterItemName: "guitar 2",
-                        AnalyticsParameterItemCategory: "instruments",
-                        AnalyticsParameterItemVariant: "white",
-                        AnalyticsParameterItemBrand: "Yamaha",
-                        AnalyticsParameterPrice: 99.99
-                    ]
-                    var productDetails2: [String: Any] = [
-                        AnalyticsParameterCurrency: "USD",
-                        AnalyticsParameterValue: 99.99,
-                        AnalyticsParameterTransactionID: Int.random(in: 1..<5000000),
-                        AnalyticsParameterTax: 1,
-                        AnalyticsParameterAffiliation: 1234,
-                        AnalyticsParameterCheckoutOption: "credit_card"
-                    ]
-                    productDetails[AnalyticsParameterItems] = [guitar]
-                    productDetails2[AnalyticsParameterItems] = [guitar2]
                     Analytics.logEvent("ecommerce_purchase", parameters: productDetails)
-                    Analytics.logEvent("purchase", parameters: productDetails2)
+                    
+                    // GA4
+                    Analytics.logEvent("purchase", parameters: productDetails)
                 }) {
-                    Text("click me")
-                }
+                    Text("Purchase")
+                }.padding(10)
             }
         }
     }
