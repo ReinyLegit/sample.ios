@@ -44,6 +44,36 @@ struct ContentView: View {
             .padding()
         ZStack {
             VStack {
+                // view item event
+                Button(action: {
+                    // Universal Analytics
+                    var viewItemParams: [String: Any] = [
+                        AnalyticsParameterCurrency: "USD",
+                        AnalyticsParameterValue: cartValue,
+                        AnalyticsParameterItems: [guitar, cymbal]
+                    ]
+                    //Analytics.logEvent("view_item", parameters: viewItemParams)
+                    Analytics.logEvent(AnalyticsEventViewItem, parameters: viewItemParams)
+                })
+                {
+                    Text("View Items")
+                }.padding(10)
+                
+                // add to cart event
+                Button(action: {
+                    // Universal Analytics
+                    var viewItemParams: [String: Any] = [
+                        AnalyticsParameterCurrency: "USD",
+                        AnalyticsParameterValue: cartValue,
+                        AnalyticsParameterItems: [guitar, cymbal]
+                    ]
+                    // Analytics.logEvent("add_to_cart", parameters: viewItemParams)
+                    Analytics.logEvent(AnalyticsEventAddToCart, parameters: viewItemParams)
+                })
+                {
+                    Text("Add to Cart")
+                }.padding(10)
+                
                 // begin checkout event
                 Button(action: {
                     // Universal Analytics
@@ -52,7 +82,8 @@ struct ContentView: View {
                         AnalyticsParameterValue: cartValue,
                         AnalyticsParameterItems: [guitar, cymbal]
                     ]
-                    Analytics.logEvent("begin_checkout", parameters: beginCheckoutParams)
+                    // Analytics.logEvent("begin_checkout", parameters: beginCheckoutParams)
+                    Analytics.logEvent(AnalyticsEventBeginCheckout, parameters: beginCheckoutParams)
                 })
                 {
                     Text("Begin Checkout")
@@ -64,7 +95,8 @@ struct ContentView: View {
                     var contactInfoParams: [String: Any] = [
                         AnalyticsParameterCheckoutStep: 2
                     ]
-                    Analytics.logEvent("checkout_progress", parameters: contactInfoParams)
+                    // Analytics.logEvent("checkout_progress", parameters: contactInfoParams)
+                    Analytics.logEvent(AnalyticsEventCheckoutProgress, parameters: contactInfoParams)
                     
                     // GA4 does not have access to the checkout_step param
                     Analytics.logEvent("checkout_contact_info", parameters: [
@@ -81,7 +113,8 @@ struct ContentView: View {
                     var paymentInfoParams: [String: Any] = [
                         AnalyticsParameterCheckoutStep: 3
                     ]
-                    Analytics.logEvent("checkout_progress", parameters: paymentInfoParams)
+                    // Analytics.logEvent("checkout_progress", parameters: paymentInfoParams)
+                    Analytics.logEvent(AnalyticsEventCheckoutProgress, parameters: paymentInfoParams)
                     
                     // GA4 does not have access to the checkout_step param
                     Analytics.logEvent("checkout_payment_info", parameters: [
@@ -104,10 +137,12 @@ struct ContentView: View {
                         AnalyticsParameterCheckoutOption: "credit_card",
                         AnalyticsParameterItems: [guitar, cymbal]
                     ]
-                    Analytics.logEvent("ecommerce_purchase", parameters: productDetails)
+                    // Analytics.logEvent("ecommerce_purchase", parameters: productDetails)
+                    Analytics.logEvent(AnalyticsEventEcommercePurchase, parameters: productDetails)
                     
                     // GA4
-                    Analytics.logEvent("purchase", parameters: productDetails)
+                    // Analytics.logEvent("purchase", parameters: productDetails)
+                    Analytics.logEvent(AnalyticsEventPurchase, parameters: productDetails)
                 }) {
                     Text("Purchase")
                 }.padding(10)
